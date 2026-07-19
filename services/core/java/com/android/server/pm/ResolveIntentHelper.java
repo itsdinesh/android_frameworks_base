@@ -218,6 +218,22 @@ final class ResolveIntentHelper {
             @PackageManagerInternal.PrivateResolveFlags long privateResolveFlags,
             List<ResolveInfo> query, int userId, boolean queryMayBeFiltered) {
         if (query != null) {
+            if (intent != null && (
+                    "application/vnd.android.package-archive".equals(resolvedType)
+                    || "application/vnd.android.package-archive".equals(intent.getType())
+                    || Intent.ACTION_INSTALL_PACKAGE.equals(intent.getAction())
+               )) {
+                for (int i = 0; i < query.size(); i++) {
+                    ResolveInfo ri = query.get(i);
+                    if (ri != null && ri.activityInfo != null) {
+                        String pkgName = ri.activityInfo.packageName;
+                        if ("com.android.packageinstaller".equals(pkgName)
+                                || "com.google.android.packageinstaller".equals(pkgName)) {
+                            return ri;
+                        }
+                    }
+                }
+            }
             final int n = query.size();
             if (n == 1) {
                 return query.get(0);
