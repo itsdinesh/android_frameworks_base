@@ -1655,7 +1655,7 @@ public class PackageImpl implements ParsedPackage, AndroidPackageInternal,
 
     @Override
     public boolean isExtractNativeLibrariesRequested() {
-        return getBoolean(Booleans.EXTRACT_NATIVE_LIBS);
+        return true;
     }
 
     @Override
