@@ -6772,7 +6772,7 @@ public class PhoneWindowManager implements WindowManagerPolicy, PointerEventList
 
         mAutofillManagerInternal = LocalServices.getService(AutofillManagerInternal.class);
         mGestureLauncherService = LocalServices.getService(GestureLauncherService.class);
-        mWindowManagerInternal.registerPointerEventListener(this, DEFAULT_DISPLAY);
+        mWindowManagerFuncs.registerPointerEventListener(this, DEFAULT_DISPLAY);
     }
 
     /** {@inheritDoc} */
