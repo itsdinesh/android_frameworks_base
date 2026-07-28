@@ -364,4 +364,15 @@ public abstract class PowerManagerInternal {
      * return false if ambient display is not available.
      */
     public abstract boolean isAmbientDisplaySuppressed();
+
+    /**
+     * Sets whether the display should be turned off while keeping the system awake/interactive.
+     */
+    public abstract void setDisplayOffOnly(boolean offOnly);
+
+    /**
+     * Returns true if display-off only mode is active.
+     */
+    public abstract boolean isDisplayOffOnly();
 }
+

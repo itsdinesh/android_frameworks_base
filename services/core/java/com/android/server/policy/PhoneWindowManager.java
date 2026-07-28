@@ -203,6 +203,7 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
 import android.view.WindowManagerPolicyConstants;
+import android.view.WindowManagerPolicyConstants.PointerEventListener;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Animation;
@@ -283,7 +284,7 @@ import java.util.function.Supplier;
  * can be acquired with either the Lw and Li lock held, so has the restrictions
  * of both of those when held.
  */
-public class PhoneWindowManager implements WindowManagerPolicy {
+public class PhoneWindowManager implements WindowManagerPolicy, PointerEventListener {
     static final String TAG = "WindowManager";
     static final boolean localLOGV = false;
     static final boolean DEBUG_INPUT = false;
@@ -1320,7 +1321,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 case SHORT_PRESS_POWER_NOTHING:
                     break;
                 case SHORT_PRESS_POWER_GO_TO_SLEEP:
-                    sleepDefaultDisplayFromPowerButton(eventTime, 0);
+                    if (mPowerManagerInternal != null && mPowerManagerInternal.isDisplayOffOnly()) {
+                        mPowerManagerInternal.setDisplayOffOnly(false);
+                    } else if (mPowerManagerInternal != null) {
+                        mPowerManagerInternal.setDisplayOffOnly(true);
+                    } else {
+                        sleepDefaultDisplayFromPowerButton(eventTime, 0);
+                    }
                     break;
                 case SHORT_PRESS_POWER_REALLY_GO_TO_SLEEP:
                     sleepDefaultDisplayFromPowerButton(eventTime,
@@ -1365,6 +1372,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private boolean shouldHandleShortPressPowerAction(boolean interactive, long eventTime) {
+        if (mPowerManagerInternal != null && mPowerManagerInternal.isDisplayOffOnly()) {
+            return true;
+        }
         if (mSupportShortPressPowerWhenDefaultDisplayOn) {
             final boolean defaultDisplayOn = Display.isOnState(mDefaultDisplay.getState());
             final boolean beganFromDefaultDisplayOn =
@@ -5955,11 +5965,29 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return true;
     }
 
+    @Override
+    public void onPointerEvent(MotionEvent motionEvent) {
+        if (mPowerManagerInternal != null && mPowerManagerInternal.isDisplayOffOnly()) {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                Slog.i(TAG, "Screen tap detected while display-off only mode is active. Turning display back on.");
+                mPowerManagerInternal.setDisplayOffOnly(false);
+            }
+        }
+    }
+
     // TODO(b/117479243): handle it in InputPolicy
     /** {@inheritDoc} */
     @Override
     public int interceptMotionBeforeQueueingNonInteractive(int displayId, int source, int action,
             long whenNanos, int policyFlags) {
+        if (mPowerManagerInternal != null && mPowerManagerInternal.isDisplayOffOnly()) {
+            if (action == MotionEvent.ACTION_DOWN) {
+                Slog.i(TAG, "Non-interactive screen tap detected while display-off only mode is active. Turning display back on.");
+                mPowerManagerInternal.setDisplayOffOnly(false);
+            }
+            return ACTION_PASS_TO_USER;
+        }
+
         if ((policyFlags & FLAG_WAKE) != 0) {
             if (mWindowWakeUpPolicy.wakeUpFromMotion(
                         whenNanos / 1000000, source, action == MotionEvent.ACTION_DOWN)) {
@@ -6744,6 +6772,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         mAutofillManagerInternal = LocalServices.getService(AutofillManagerInternal.class);
         mGestureLauncherService = LocalServices.getService(GestureLauncherService.class);
+        mWindowManagerInternal.registerPointerEventListener(this, DEFAULT_DISPLAY);
     }
 
     /** {@inheritDoc} */

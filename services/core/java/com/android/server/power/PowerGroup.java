@@ -423,10 +423,10 @@ public class PowerGroup {
     @VisibleForTesting
     int getDesiredScreenPolicyLocked(boolean quiescent, boolean dozeAfterScreenOff,
             boolean bootCompleted, boolean screenBrightnessBoostInProgress,
-            boolean brightWhenDozing) {
+            boolean brightWhenDozing, boolean displayOffOnly) {
         final int wakefulness = getWakefulnessLocked();
         final int wakeLockSummary = getWakeLockSummaryLocked();
-        if (wakefulness == WAKEFULNESS_ASLEEP || quiescent) {
+        if (wakefulness == WAKEFULNESS_ASLEEP || quiescent || displayOffOnly) {
             return DisplayPowerRequest.POLICY_OFF;
         } else if (wakefulness == WAKEFULNESS_DOZING) {
             if ((wakeLockSummary & WAKE_LOCK_DOZE) != 0) {
@@ -462,9 +462,9 @@ public class PowerGroup {
             boolean overrideDrawWakeLock, PowerSaveState powerSaverState, boolean quiescent,
             boolean dozeAfterScreenOff, boolean bootCompleted,
             boolean screenBrightnessBoostInProgress, boolean waitForNegativeProximity,
-            boolean brightWhenDozing) {
+            boolean brightWhenDozing, boolean displayOffOnly) {
         mDisplayPowerRequest.policy = getDesiredScreenPolicyLocked(quiescent, dozeAfterScreenOff,
-                bootCompleted, screenBrightnessBoostInProgress, brightWhenDozing);
+                bootCompleted, screenBrightnessBoostInProgress, brightWhenDozing, displayOffOnly);
         mDisplayPowerRequest.screenBrightnessOverride = screenBrightnessOverride;
         mDisplayPowerRequest.useProximitySensor = useProximitySensor;
         mDisplayPowerRequest.boostScreenBrightness = boostScreenBrightness;
