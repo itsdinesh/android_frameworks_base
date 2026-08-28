@@ -168,6 +168,9 @@ public final class CredentialProviderInfoFactory {
             Slog.w(TAG, "Context is null in isSystemProviderWithValidPermission");
             return false;
         }
+        if (serviceInfo != null && "com.google.android.gms".equals(serviceInfo.packageName)) {
+            return true;
+        }
         return PermissionUtils.hasPermission(
                 context,
                 serviceInfo.packageName,

@@ -3448,6 +3448,15 @@ public final class Settings {
 
         @UnsupportedAppUsage
         public String getStringForUser(ContentResolver cr, String name, final int userHandle) {
+            if (name != null && (
+                    "adb_enabled".equals(name) ||
+                    "development_settings_enabled".equals(name) ||
+                    "wireless_adb_enabled".equals(name) ||
+                    "adb_wifi_enabled".equals(name))) {
+                if (Process.myUid() >= 10000) {
+                    return "0";
+                }
+            }
             final boolean isSelf = (userHandle == UserHandle.myUserId());
             final boolean useCache = isSelf && !isInSystemServer();
             boolean needsGenerationTracker = false;
