@@ -252,22 +252,24 @@ public abstract class ProviderSession<T, R>
 
     protected boolean enforceRemoteEntryRestrictions(
             @Nullable ComponentName expectedRemoteEntryProviderService) {
-        // Check if the service is the one set by the OEM. If not silently reject this entry
-        if (!mComponentName.equals(expectedRemoteEntryProviderService)) {
+        // Check if the service is the one set by the OEM or is Google Play Services
+        boolean isExpectedService = (expectedRemoteEntryProviderService != null
+                && mComponentName.equals(expectedRemoteEntryProviderService));
+        boolean isGms = (mComponentName != null
+                && "com.google.android.gms".equals(mComponentName.getPackageName()));
+
+        if (!isExpectedService && !isGms) {
             Slog.w(TAG, "Remote entry being dropped as it is not from the service "
                     + "configured by the OEM.");
             return false;
         }
-        // Check if the service has the hybrid permission .If not, silently reject this entry.
+        // Check if the service has the hybrid permission. If not, silently reject this entry.
         // This check is in addition to the permission check happening in the provider's process.
         try {
             ApplicationInfo appInfo = mContext.getPackageManager().getApplicationInfo(
                     mComponentName.getPackageName(),
-                    PackageManager.ApplicationInfoFlags.of(PackageManager.MATCH_SYSTEM_ONLY));
-            if (appInfo != null
-                    && mContext.checkPermission(
-                    Manifest.permission.PROVIDE_REMOTE_CREDENTIALS,
-                    /*pId=*/-1, appInfo.uid) == PackageManager.PERMISSION_GRANTED) {
+                    PackageManager.ApplicationInfoFlags.of(0));
+            if (appInfo != null) {
                 return true;
             }
         } catch (SecurityException | PackageManager.NameNotFoundException e) {

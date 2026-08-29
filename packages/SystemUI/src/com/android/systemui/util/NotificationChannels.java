@@ -85,9 +85,8 @@ public class NotificationChannels implements CoreStartable {
         final NotificationChannel storage = new NotificationChannel(
                 STORAGE,
                 context.getString(R.string.notification_channel_storage),
-                isTv(context)
-                        ? NotificationManager.IMPORTANCE_DEFAULT
-                        : NotificationManager.IMPORTANCE_LOW);
+                NotificationManager.IMPORTANCE_NONE);
+        storage.setBlockable(true);
 
         final NotificationChannel hint = new NotificationChannel(
                 HINTS,

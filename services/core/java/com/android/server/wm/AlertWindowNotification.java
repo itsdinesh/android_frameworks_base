@@ -16,7 +16,7 @@
 
 package com.android.server.wm;
 
-import static android.app.NotificationManager.IMPORTANCE_MIN;
+import static android.app.NotificationManager.IMPORTANCE_NONE;
 import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -164,7 +164,7 @@ class AlertWindowNotification {
         if (channel != null) {
             return;
         }
-        channel = new NotificationChannel(mNotificationTag, nameChannel, IMPORTANCE_MIN);
+        channel = new NotificationChannel(mNotificationTag, nameChannel, IMPORTANCE_NONE);
         channel.enableLights(false);
         channel.enableVibration(false);
         channel.setBlockable(true);
