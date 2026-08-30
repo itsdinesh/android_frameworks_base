@@ -252,13 +252,8 @@ public abstract class ProviderSession<T, R>
 
     protected boolean enforceRemoteEntryRestrictions(
             @Nullable ComponentName expectedRemoteEntryProviderService) {
-        // Check if the service is the one set by the OEM or is Google Play Services
-        boolean isExpectedService = (expectedRemoteEntryProviderService != null
-                && mComponentName.equals(expectedRemoteEntryProviderService));
-        boolean isGms = (mComponentName != null
-                && "com.google.android.gms".equals(mComponentName.getPackageName()));
-
-        if (!isExpectedService && !isGms) {
+        if (expectedRemoteEntryProviderService == null
+                || !mComponentName.equals(expectedRemoteEntryProviderService)) {
             Slog.w(TAG, "Remote entry being dropped as it is not from the service "
                     + "configured by the OEM.");
             return false;
@@ -270,7 +265,9 @@ public abstract class ProviderSession<T, R>
                     mComponentName.getPackageName(),
                     PackageManager.ApplicationInfoFlags.of(0));
             if (appInfo != null) {
-                return true;
+                return (mContext.getPackageManager().checkPermission(
+                        Manifest.permission.PROVIDE_REMOTE_CREDENTIALS,
+                        mComponentName.getPackageName()) == PackageManager.PERMISSION_GRANTED);
             }
         } catch (SecurityException | PackageManager.NameNotFoundException e) {
             Slog.e(TAG, "Error getting info for " + mComponentName.flattenToString(), e);
