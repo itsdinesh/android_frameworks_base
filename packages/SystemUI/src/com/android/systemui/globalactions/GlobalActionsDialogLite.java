@@ -993,9 +993,9 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         public boolean onLongPress() { 
             PowerManager mPowerManager = (PowerManager) 
                    mContext.getSystemService(Context.POWER_SERVICE); 
-            SystemProperties.set("suspend.force_s3", "1");
-            mPowerManager.goToSleep(SystemClock.uptimeMillis(), PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON,
-                                                                PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE );
+            new Thread(() -> {
+                mPowerManager.forceSuspend();
+            }).start();
             return true; 
         } 
  
@@ -1013,9 +1013,9 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
         public void onPress() { 
             PowerManager mPowerManager = (PowerManager) 
                    mContext.getSystemService(Context.POWER_SERVICE); 
-            SystemProperties.set("suspend.force_s3", "1");
-            mPowerManager.goToSleep(SystemClock.uptimeMillis(), PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON,
-                                                                PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE );
+            new Thread(() -> {
+                mPowerManager.forceSuspend();
+            }).start();
         } 
     } 
 
