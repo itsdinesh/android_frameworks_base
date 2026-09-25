@@ -367,7 +367,6 @@ public final class PowerManagerService extends SystemService
     private float mKeyboardBrightness;
 
     private boolean mButtonLightOnKeypressOnly;
-    private boolean mDisplayOffOnly;
 
     private final InattentiveSleepWarningController mInattentiveSleepWarningOverlayController;
     private final AmbientDisplaySuppressionController mAmbientDisplaySuppressionController;
@@ -2280,7 +2279,6 @@ public final class PowerManagerService extends SystemService
         if (mForceSuspendActive || !mSystemReady) {
             return;
         }
-        mDisplayOffOnly = false;
         powerGroup.wakeUpLocked(eventTime, reason, details, uid, opPackageName, opUid,
                 LatencyTracker.getInstance(mContext));
     }
@@ -3787,7 +3785,7 @@ public final class PowerManagerService extends SystemService
                                 : new PowerSaveState.Builder().build(),
                         sQuiescent, mDozeAfterScreenOff, mBootCompleted,
                         mScreenBrightnessBoostInProgress, mRequestWaitForNegativeProximity,
-                        mBrightWhenDozingConfig, mDisplayOffOnly);
+                        mBrightWhenDozingConfig);
                 int wakefulness = powerGroup.getWakefulnessLocked();
                 if (DEBUG_SPEW) {
                     Slog.d(TAG, "updateDisplayPowerStateLocked: displayReady=" + ready
@@ -3870,8 +3868,7 @@ public final class PowerManagerService extends SystemService
     int getDesiredScreenPolicyLocked(int groupId) {
         return mPowerGroups.get(groupId).getDesiredScreenPolicyLocked(sQuiescent,
                 mDozeAfterScreenOff, mBootCompleted,
-                mScreenBrightnessBoostInProgress, mBrightWhenDozingConfig,
-                mDisplayOffOnly);
+                mScreenBrightnessBoostInProgress, mBrightWhenDozingConfig);
     }
 
     @VisibleForTesting
@@ -7249,7 +7246,6 @@ public final class PowerManagerService extends SystemService
         final long ident = Binder.clearCallingIdentity();
         try {
             synchronized (mLock) {
-                mDisplayOffOnly = false;
                 for (int i = 0; i < groupIds.size(); i++) {
                     int groupId = groupIds.get(i);
                     PowerGroup powerGroup = mPowerGroups.get(groupId);
@@ -7281,34 +7277,8 @@ public final class PowerManagerService extends SystemService
         }
     }
 
-    private void setDisplayOffOnlyInternal(boolean offOnly) {
-        synchronized (mLock) {
-            if (mDisplayOffOnly != offOnly) {
-                mDisplayOffOnly = offOnly;
-                mDirty |= DIRTY_SETTINGS;
-                updatePowerStateLocked();
-            }
-        }
-    }
-
-    private boolean isDisplayOffOnlyInternal() {
-        synchronized (mLock) {
-            return mDisplayOffOnly;
-        }
-    }
-
     @VisibleForTesting
     final class LocalService extends PowerManagerInternal {
-        @Override
-        public void setDisplayOffOnly(boolean offOnly) {
-            setDisplayOffOnlyInternal(offOnly);
-        }
-
-        @Override
-        public boolean isDisplayOffOnly() {
-            return isDisplayOffOnlyInternal();
-        }
-
         @Override
         public void setButtonBrightnessOverrideFromWindowManager(float screenBrightness) {
             mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER, null);
