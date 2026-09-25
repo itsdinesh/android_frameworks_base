@@ -1727,6 +1727,7 @@ public final class SystemServiceRegistry {
                 case Context.CONTEXTHUB_SERVICE:
                 case Context.VIRTUALIZATION_SERVICE:
                 case Context.VIRTUAL_DEVICE_SERVICE:
+                case Context.DROPBOX_SERVICE:
                     return null;
                 case Context.SEARCH_SERVICE:
                     // Wear device does not support SEARCH_SERVICE so we do not print WTF here
