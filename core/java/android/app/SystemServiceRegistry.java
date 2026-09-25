@@ -1728,6 +1728,8 @@ public final class SystemServiceRegistry {
                 case Context.VIRTUALIZATION_SERVICE:
                 case Context.VIRTUAL_DEVICE_SERVICE:
                 case Context.DROPBOX_SERVICE:
+                case Context.JOB_SCHEDULER_SERVICE:
+                case Context.FACE_SERVICE:
                     return null;
                 case Context.SEARCH_SERVICE:
                     // Wear device does not support SEARCH_SERVICE so we do not print WTF here
@@ -2212,6 +2214,10 @@ public final class SystemServiceRegistry {
         // components that might stumble if they obtain bad references; just
         // emit a tidy log message for normal apps
         if (android.os.Process.myUid() < android.os.Process.FIRST_APPLICATION_UID) {
+            if (e.getMessage() != null && e.getMessage().contains("dropbox")) {
+                Log.w(TAG, e.getMessage());
+                return;
+            }
             Log.wtf(TAG, e.getMessage(), e);
         } else {
             Log.w(TAG, e.getMessage());
