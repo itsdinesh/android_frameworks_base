@@ -157,22 +157,25 @@ std::shared_ptr<ISystemSuspend> getSuspendHal() {
 }
 
 sp<ISuspendControlService> getSuspendControl() {
-    static std::once_flag suspendControlFlag;
-    std::call_once(suspendControlFlag, [](){
+    static std::mutex suspendControlMutex;
+    std::lock_guard<std::mutex> lock(suspendControlMutex);
+    if (gSuspendControl == nullptr || !IInterface::asBinder(gSuspendControl)->isBinderAlive()) {
         gSuspendControl = waitForService<ISuspendControlService>(String16("suspend_control"));
         LOG_ALWAYS_FATAL_IF(gSuspendControl == nullptr);
-    });
+    }
     return gSuspendControl;
 }
 
 sp<system::suspend::internal::ISuspendControlServiceInternal> getSuspendControlInternal() {
-    static std::once_flag suspendControlFlag;
-    std::call_once(suspendControlFlag, []() {
+    static std::mutex suspendControlInternalMutex;
+    std::lock_guard<std::mutex> lock(suspendControlInternalMutex);
+    if (gSuspendControlInternal == nullptr ||
+        !IInterface::asBinder(gSuspendControlInternal)->isBinderAlive()) {
         gSuspendControlInternal =
                 waitForService<system::suspend::internal::ISuspendControlServiceInternal>(
                         String16("suspend_control_internal"));
         LOG_ALWAYS_FATAL_IF(gSuspendControlInternal == nullptr);
-    });
+    }
     return gSuspendControlInternal;
 }
 
