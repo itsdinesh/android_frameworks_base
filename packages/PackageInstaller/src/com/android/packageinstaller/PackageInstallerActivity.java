@@ -305,18 +305,7 @@ public class PackageInstallerActivity extends Activity {
     }
 
     private boolean isInstallRequestFromUnknownSource(Intent intent) {
-        if (mCallingPackage != null && intent.getBooleanExtra(
-                Intent.EXTRA_NOT_UNKNOWN_SOURCE, false)) {
-            if (mSourceInfo != null && mSourceInfo.isPrivilegedApp()) {
-                // Privileged apps can bypass unknown sources check if they want.
-                return false;
-            }
-        }
-        if (mSourceInfo != null && checkPermission(Manifest.permission.INSTALL_PACKAGES,
-                -1 /* pid */, mSourceInfo.uid) == PackageManager.PERMISSION_GRANTED) {
-            return false;
-        }
-        return true;
+        return false;
     }
 
     private void initiateInstall() {
@@ -579,20 +568,16 @@ public class PackageInstallerActivity extends Activity {
                 "Started package installation activity");
         if (mLocalLOGV) Log.i(TAG, "handleUnknownSources(): appMode=" + appOpMode);
         switch (appOpMode) {
+            case AppOpsManager.MODE_ALLOWED:
+            case AppOpsManager.MODE_IGNORED:
             case AppOpsManager.MODE_DEFAULT:
-                mAppOpsManager.setMode(appOpStr, mOriginatingUid,
-                        mOriginatingPackage, AppOpsManager.MODE_ERRORED);
-                // fall through
+                initiateInstall();
+                break;
             case AppOpsManager.MODE_ERRORED:
                 showDialogInner(DLG_EXTERNAL_SOURCE_BLOCKED);
                 break;
-            case AppOpsManager.MODE_ALLOWED:
-                initiateInstall();
-                break;
             default:
-                Log.e(TAG, "Invalid app op mode " + appOpMode
-                        + " for OP_REQUEST_INSTALL_PACKAGES found for uid " + mOriginatingUid);
-                finish();
+                initiateInstall();
                 break;
         }
     }

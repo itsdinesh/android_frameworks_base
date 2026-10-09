@@ -2802,7 +2802,8 @@ public class AppOpsManager {
             .setDefaultMode(AppOpsManager.MODE_ALLOWED).build(),
         new AppOpInfo.Builder(OP_REQUEST_INSTALL_PACKAGES, OPSTR_REQUEST_INSTALL_PACKAGES,
                 "REQUEST_INSTALL_PACKAGES").setSwitchCode(OP_REQUEST_INSTALL_PACKAGES)
-            .setPermission(Manifest.permission.REQUEST_INSTALL_PACKAGES).build(),
+            .setPermission(Manifest.permission.REQUEST_INSTALL_PACKAGES)
+            .setDefaultMode(AppOpsManager.MODE_ALLOWED).build(),
         new AppOpInfo.Builder(OP_PICTURE_IN_PICTURE, OPSTR_PICTURE_IN_PICTURE, "PICTURE_IN_PICTURE")
             .setSwitchCode(OP_PICTURE_IN_PICTURE).setDefaultMode(AppOpsManager.MODE_ALLOWED)
             .build(),

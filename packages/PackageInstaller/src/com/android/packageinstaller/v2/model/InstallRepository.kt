@@ -722,13 +722,7 @@ class InstallRepository(private val context: Context) {
         }
 
         return when (appOpMode) {
-            AppOpsManager.MODE_DEFAULT, AppOpsManager.MODE_ERRORED -> {
-                if (appOpMode == AppOpsManager.MODE_DEFAULT) {
-                    appOpsManager.setMode(
-                        appOpStr, requestInfo.originatingUid, requestInfo.callingPackage,
-                        AppOpsManager.MODE_ERRORED
-                    )
-                }
+            AppOpsManager.MODE_ERRORED -> {
                 try {
                     val sourceInfo =
                         packageManager.getApplicationInfo(requestInfo.callingPackage, 0)
@@ -743,15 +737,7 @@ class InstallRepository(private val context: Context) {
                 }
             }
 
-            AppOpsManager.MODE_ALLOWED -> InstallReady()
-
-            else -> {
-                Log.e(
-                    LOG_TAG, "Invalid app op mode $appOpMode for " +
-                        "OP_REQUEST_INSTALL_PACKAGES found for uid $requestInfo.originatingUid"
-                )
-                InstallAborted(ABORT_REASON_INTERNAL_ERROR)
-            }
+            else -> InstallReady()
         }
     }
 
