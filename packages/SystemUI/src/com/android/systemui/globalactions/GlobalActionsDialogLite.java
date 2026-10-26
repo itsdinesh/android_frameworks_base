@@ -994,6 +994,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             PowerManager mPowerManager = (PowerManager) 
                    mContext.getSystemService(Context.POWER_SERVICE); 
             new Thread(() -> {
+                SystemProperties.set("suspend.force_s3", "1");
                 mPowerManager.forceSuspend();
             }).start();
             return true; 
@@ -1014,6 +1015,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             PowerManager mPowerManager = (PowerManager) 
                    mContext.getSystemService(Context.POWER_SERVICE); 
             new Thread(() -> {
+                SystemProperties.set("suspend.force_s3", "1");
                 mPowerManager.forceSuspend();
             }).start();
         } 
