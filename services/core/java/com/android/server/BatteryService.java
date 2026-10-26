@@ -455,18 +455,40 @@ public final class BatteryService extends SystemService {
     }
 
     private boolean shouldShutdownLocked() {
-        if (mHealthInfo.batteryCapacityLevel != BatteryCapacityLevel.UNSUPPORTED) {
-            return (mHealthInfo.batteryCapacityLevel == BatteryCapacityLevel.CRITICAL);
-        }
         if (!mShutdownIfNoPower) {
             return false;
         }
-        if (mHealthInfo.batteryLevel > 0) {
+
+        // Never shut down due to low battery if connected to external power (AC, USB, wireless, dock)
+        // or if the battery is actively charging.
+        if (isPoweredLocked(BatteryManager.BATTERY_PLUGGED_ANY) || mPlugType != BATTERY_PLUGGED_NONE) {
+            return false;
+        }
+        if (mHealthInfo.chargerAcOnline || mHealthInfo.chargerUsbOnline
+                || mHealthInfo.chargerWirelessOnline || mHealthInfo.chargerDockOnline) {
+            return false;
+        }
+        if (mHealthInfo.batteryStatus == BatteryManager.BATTERY_STATUS_CHARGING) {
+            return false;
+        }
+
+        // During early boot (first 60 seconds of uptime), give power supply / ACPI drivers
+        // time to initialize before considering an immediate low battery shutdown.
+        if (SystemClock.elapsedRealtime() < 60_000) {
+            Slog.i(TAG, "shouldShutdownLocked: skipping low battery shutdown during early boot grace period ("
+                    + SystemClock.elapsedRealtime() + "ms < 60000ms)");
             return false;
         }
 
         // Battery-less devices should not shutdown.
         if (!mHealthInfo.batteryPresent) {
+            return false;
+        }
+
+        if (mHealthInfo.batteryCapacityLevel != BatteryCapacityLevel.UNSUPPORTED) {
+            return (mHealthInfo.batteryCapacityLevel == BatteryCapacityLevel.CRITICAL);
+        }
+        if (mHealthInfo.batteryLevel > 0) {
             return false;
         }
 
