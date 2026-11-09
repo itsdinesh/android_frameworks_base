@@ -994,6 +994,12 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             PowerManager mPowerManager = (PowerManager) 
                    mContext.getSystemService(Context.POWER_SERVICE); 
             new Thread(() -> {
+                mPowerManager.goToSleep(SystemClock.uptimeMillis(),
+                        PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON,
+                        PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
+                try {
+                    Thread.sleep(800);
+                } catch (InterruptedException ignored) {}
                 mPowerManager.forceSuspend();
             }).start();
             return true; 
@@ -1014,6 +1020,12 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             PowerManager mPowerManager = (PowerManager) 
                    mContext.getSystemService(Context.POWER_SERVICE); 
             new Thread(() -> {
+                mPowerManager.goToSleep(SystemClock.uptimeMillis(),
+                        PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON,
+                        PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
+                try {
+                    Thread.sleep(800);
+                } catch (InterruptedException ignored) {}
                 mPowerManager.forceSuspend();
             }).start();
         } 
