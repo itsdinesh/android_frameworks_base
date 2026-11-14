@@ -53,7 +53,7 @@ public class CaptioningManager {
     private static final int DEFAULT_PRESET = 0;
 
     /** Default scaling value for caption fonts. */
-    private static final float DEFAULT_FONT_SCALE = 1;
+    private static final float DEFAULT_FONT_SCALE = 0.5f;
 
     private final ArrayList<CaptioningChangeListener> mListeners = new ArrayList<>();
     private final ContentResolver mContentResolver;
@@ -118,7 +118,7 @@ public class CaptioningManager {
     }
 
     /**
-     * @return the user's preferred font scaling factor for video captions, or 1 if not
+     * @return the user's preferred font scaling factor for video captions, or 0.5 if not
      *         specified
      */
     public final float getFontScale() {
